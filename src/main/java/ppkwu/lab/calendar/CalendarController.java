@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import biweekly.ICalendar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 public class CalendarController {
 
@@ -20,7 +23,9 @@ public class CalendarController {
     }
 
 
-    private List<Event> getWeeiaCalendar(String url){
-        return ;
+    private List<Event> getWeeiaCalendarEvents(String url){
+        List<Event> weeiaCalendarEvents = new ArrayList<>();
+        return weeiaCalendarEvents ;
     }
 }
+
