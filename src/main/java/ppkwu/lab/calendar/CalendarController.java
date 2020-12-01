@@ -1,12 +1,16 @@
 package ppkwu.lab.calendar;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.web.bind.annotation.*;
 import biweekly.ICalendar;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +27,28 @@ public class CalendarController {
     }
 
 
-    private List<Event> getWeeiaCalendarEvents(String url){
+    private List<Event> getWeeiaCalendarEvents(String url) throws IOException {
         List<Event> weeiaCalendarEvents = new ArrayList<>();
+        URL urlConn = new URL(url);
+        URLConnection conn = urlConn.openConnection();
+        BufferedReader b = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        StringBuilder s = new StringBuilder();
+        String loadedLines;
+        while ((loadedLines = b.readLine()) != null) {
+            s.append(loadedLines);
+        }
+        //From StringBuilder to string
+        String lines = s.toString();
+        documentReader(lines);
+
         return weeiaCalendarEvents ;
+    }
+
+    private void documentReader(String lines){
+        Document document = Jsoup.parse(lines);
+        Elements activeElement = document.select("td.active");
+        Elements events = activeElement.select("div.InnerBox");
+        Elements days = activeElement.select("a.active");
     }
 }
 
