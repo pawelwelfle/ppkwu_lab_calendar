@@ -1,17 +1,25 @@
 package ppkwu.lab.calendar;
 
+import biweekly.Biweekly;
 import biweekly.component.VEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import biweekly.ICalendar;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,7 +31,7 @@ public class CalendarController {
 
     @GetMapping("/calendar")
     @ResponseBody
-    public static String getCalendarURL(@RequestParam("year") String year, @RequestParam("month") String month) throws IOException, ParseException {
+    public ResponseEntity getCalendarURL(@RequestParam("year") String year, @RequestParam("month") String month) throws IOException, ParseException {
         String weeiaURL = "http://www.weeia.p.lodz.pl/pliki_strony_kontroler/kalendarz.php?rok=" + year + "&miesiac=" + month;
         ICalendar cal = new ICalendar();
         cal.setExperimentalProperty("X-WR-CALNAME", "Calendar");
@@ -38,8 +46,13 @@ public class CalendarController {
             vEvent.setSummary(event.name);
             cal.addEvent(vEvent);
         }
-
-        return weeiaURL;
+        File file = new File("WEEIA" + "_" + year + "_" + month + ".ics");
+        Biweekly.write(cal).go(file);
+        Path path = Paths.get("WEEIA" + "_" + year + "_" + month + ".ics");
+        Resource resource = new UrlResource(path.toUri());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
+                .body(resource);
     }
 
 
