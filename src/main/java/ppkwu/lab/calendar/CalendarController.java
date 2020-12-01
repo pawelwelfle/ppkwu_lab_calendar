@@ -19,15 +19,17 @@ public class CalendarController {
 
     @GetMapping("/calendar")
     @ResponseBody
-    public static String getCalendarURL(@RequestParam("year") String year, @RequestParam("month") String month){
+    public static String getCalendarURL(@RequestParam("year") String year, @RequestParam("month") String month) throws IOException {
         String weeiaURL = "http://www.weeia.p.lodz.pl/pliki_strony_kontroler/kalendarz.php?rok=" + year + "&miesiac=" + month;
         ICalendar cal = new ICalendar();
         cal.setExperimentalProperty("X-WR-CALNAME", "Calendar");
+
+        List<Event> eventDays = getWeeiaCalendarEvents(weeiaURL);
         return weeiaURL;
     }
 
 
-    private List<Event> getWeeiaCalendarEvents(String url) throws IOException {
+    private static List<Event> getWeeiaCalendarEvents(String url) throws IOException {
         List<Event> weeiaCalendarEvents = new ArrayList<>();
         URL urlConn = new URL(url);
         URLConnection conn = urlConn.openConnection();
@@ -46,8 +48,7 @@ public class CalendarController {
         for (int i = 0; i < events.size(); i++) {
             weeiaCalendarEvents.add(new Event(Integer.parseInt(days.get(i).text()), events.get(i).text()));
         }
-
-        return weeiaCalendarEvents ;
+        return weeiaCalendarEvents;
     }
 }
 
