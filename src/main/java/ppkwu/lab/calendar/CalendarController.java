@@ -1,5 +1,6 @@
 package ppkwu.lab.calendar;
 
+import biweekly.component.VEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -11,7 +12,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -19,12 +23,22 @@ public class CalendarController {
 
     @GetMapping("/calendar")
     @ResponseBody
-    public static String getCalendarURL(@RequestParam("year") String year, @RequestParam("month") String month) throws IOException {
+    public static String getCalendarURL(@RequestParam("year") String year, @RequestParam("month") String month) throws IOException, ParseException {
         String weeiaURL = "http://www.weeia.p.lodz.pl/pliki_strony_kontroler/kalendarz.php?rok=" + year + "&miesiac=" + month;
         ICalendar cal = new ICalendar();
         cal.setExperimentalProperty("X-WR-CALNAME", "Calendar");
 
-        List<Event> eventDays = getWeeiaCalendarEvents(weeiaURL);
+        List<Event> events = getWeeiaCalendarEvents(weeiaURL);
+
+        for (Event event : events) {
+            VEvent vEvent = new VEvent();
+            Date date = new SimpleDateFormat("yyyy-MM-dd").parse(year + "-" + month + "-" + event.day);
+            vEvent.setDateStart(date);
+            vEvent.setDateEnd(date);
+            vEvent.setSummary(event.name);
+            cal.addEvent(vEvent);
+        }
+
         return weeiaURL;
     }
 

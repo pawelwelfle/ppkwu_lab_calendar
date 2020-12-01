@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Event {
-    private int day;
+    int day;
     String name;
 
     public Event(int day, String name) {
