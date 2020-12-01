@@ -58,6 +58,17 @@ public class CalendarController {
 
     private static List<Event> getWeeiaCalendarEvents(String url) throws IOException {
         List<Event> weeiaCalendarEvents = new ArrayList<>();
+        Document document = getDocument(url);
+        Elements activeElements = document.select("td.active");
+        Elements events = activeElements.select("div.InnerBox");
+        Elements days = activeElements.select("a.active");
+        for (int i = 0; i < events.size(); i++) {
+            weeiaCalendarEvents.add(new Event(Integer.parseInt(days.get(i).text()), events.get(i).text()));
+        }
+        return weeiaCalendarEvents;
+    }
+
+    private static Document getDocument(String url) throws IOException {
         URL urlConn = new URL(url);
         URLConnection conn = urlConn.openConnection();
         BufferedReader b = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -66,16 +77,9 @@ public class CalendarController {
         while ((loadedLines = b.readLine()) != null) {
             s.append(loadedLines);
         }
-        //From StringBuilder to string
         String lines = s.toString();
         Document document = Jsoup.parse(lines);
-        Elements activeElements = document.select("td.active");
-        Elements events = activeElements.select("div.InnerBox");
-        Elements days = activeElements.select("a.active");
-        for (int i = 0; i < events.size(); i++) {
-            weeiaCalendarEvents.add(new Event(Integer.parseInt(days.get(i).text()), events.get(i).text()));
-        }
-        return weeiaCalendarEvents;
+        return document;
     }
 }
 
