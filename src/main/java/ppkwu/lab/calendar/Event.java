@@ -8,4 +8,9 @@ import lombok.Setter;
 public class Event {
     private int day;
     String name;
+
+    public Event(int day, String name) {
+        this.day = day;
+        this.name = name;
+    }
 }

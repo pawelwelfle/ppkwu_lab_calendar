@@ -39,16 +39,15 @@ public class CalendarController {
         }
         //From StringBuilder to string
         String lines = s.toString();
-        documentReader(lines);
+        Document document = Jsoup.parse(lines);
+        Elements activeElements = document.select("td.active");
+        Elements events = activeElements.select("div.InnerBox");
+        Elements days = activeElements.select("a.active");
+        for (int i = 0; i < events.size(); i++) {
+            weeiaCalendarEvents.add(new Event(Integer.parseInt(days.get(i).text()), events.get(i).text()));
+        }
 
         return weeiaCalendarEvents ;
-    }
-
-    private void documentReader(String lines){
-        Document document = Jsoup.parse(lines);
-        Elements activeElement = document.select("td.active");
-        Elements events = activeElement.select("div.InnerBox");
-        Elements days = activeElement.select("a.active");
     }
 }
 
